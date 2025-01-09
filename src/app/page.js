@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import * as XLSX from "xlsx";
 
 const SWPCalculator = () => {
   const [investment, setInvestment] = useState("");
@@ -81,10 +82,47 @@ const SWPCalculator = () => {
     }).format(value);
   };
 
+  const downloadReport = () => {
+    // Create workbook and worksheets
+    const workbook = XLSX.utils.book_new();
+
+    // Prepare summary data
+    const summaryData = [
+      ["Investment Summary"],
+      ["Initial Investment", totalInvestment],
+      ["Total Withdrawals", totalWithdrawal],
+      ["Total Earnings", totalEarnings],
+      ["Final Balance", finalValue],
+      [], // Empty row for spacing
+    ];
+
+    // Prepare monthly breakdown data
+    const monthlyData = [
+      ["Month", "Withdrawal", "Interest Earned", "Balance"], // Headers
+      ...monthlyReturns.map((row) => [
+        row.month,
+        row.withdrawal,
+        row.interest,
+        row.balance,
+      ]),
+    ];
+
+    // Create worksheets
+    const summaryWS = XLSX.utils.aoa_to_sheet(summaryData);
+    const monthlyWS = XLSX.utils.aoa_to_sheet(monthlyData);
+
+    // Add worksheets to workbook
+    XLSX.utils.book_append_sheet(workbook, summaryWS, "Investment Summary");
+    XLSX.utils.book_append_sheet(workbook, monthlyWS, "Monthly Breakdown");
+
+    // Save the file
+    XLSX.writeFile(workbook, "SWP_Calculator_Report.xlsx");
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-gray-100 to-gray-200">
       <div className="max-w-4xl w-full p-8 bg-white rounded-xl shadow-lg">
-        <h1 className="text-4xl font-bold text-blue-700 text-center mb-6">
+        <h1 className="text-md md:text-4xl font-bold text-blue-700 text-center mb-6">
           Systematic Withdrawal Plan (SWP) Calculator
         </h1>
 
@@ -267,6 +305,13 @@ const SWPCalculator = () => {
                   </div>
                 )}
               </div>
+              <button
+                onClick={downloadReport}
+                className="mt-4 w-full bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-700 transition duration-200"
+                disabled={!monthlyReturns.length}
+              >
+                Download Report
+              </button>
             </div>
           )}
         </div>

@@ -12,8 +12,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "SWP Calculator", // title
-  description: "swp calculator", // description
+  title: "SWP Calculator By rajjak", // title
+  description: "SWP Calculator By rajjak", // description
 };
 
 export default function RootLayout({ children }) {
